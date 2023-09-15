@@ -1,3 +1,7 @@
 # 哔哩哔哩直播监控QQ机器人
 
-![](https://meethigher.top/blog/2023/mirai-sign-server/2023-09-16_041722.png)
+采用自己设计的轻量文件FileRepo做持久化，因为插件形式嘛，也就不考虑并发等问题了，怎么简单怎么来。
+
+该插件中的系统分为管理员、直播间、群组。其中管理员为所有群组共享，而直播间是群组独有的，也就是群组:直播间=1:N
+
+![示例图](https://meethigher.top/blog/2023/mirai-sign-server/2023-09-16_041722.png)
