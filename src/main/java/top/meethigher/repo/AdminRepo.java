@@ -28,4 +28,8 @@ public class AdminRepo extends FileRepo<String> {
         }
         return repo;
     }
+
+    public boolean isAdmin(String id) {
+        return list().contains(id);
+    }
 }

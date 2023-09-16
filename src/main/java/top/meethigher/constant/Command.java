@@ -12,13 +12,17 @@ import java.util.regex.Pattern;
  */
 public enum Command {
 
-    HELP("帮助", "帮助", false, false),
-    ADMIN_LIST("管理员列表", "管理员列表", true, false),
-    ADD_ADMIN("添加管理员", "添加管理员 (\\d+)", true, true),
-    DEL_ADMIN("删除管理员", "删除管理员 (\\d+)", true, true),
-    ROOM_LIST("直播间列表", "直播间列表", true, false),
-    ADD_ROOM("添加直播间", "添加直播间 (\\d+)", true, true),
-    DEL_ROOM("移除直播间", "移除直播间 (\\d+)", true, true),
+    HELP("- 帮助", "帮助", false, false),
+    ADMIN_LIST("- 管理员列表", "管理员列表", true, false),
+    ADD_ADMIN("- 添加管理员 QQ", "添加管理员 (\\d+)", true, true),
+    DEL_ADMIN("- 删除管理员 QQ", "删除管理员 (\\d+)", true, true),
+    ROOM_LIST("- 直播间列表", "直播间列表", true, false),
+    ADD_ROOM("- 添加直播间 bili直播间号", "添加直播间 (\\d+)", true, true),
+    DEL_ROOM("- 移除直播间 bili直播间号", "移除直播间 (\\d+)", true, true),
+    SEARCH_MUSIC_TENCENT("- 搜索腾讯音乐 音乐名","搜索腾讯音乐 (\\S+)",false,true),
+    SEARCH_MUSIC_NETEASE("- 搜索网易音乐 音乐名","搜索网易音乐 (\\S+)",false,true),
+    DOWN_MUSIC_TENCENT("- 下载腾讯音乐 音乐id","下载腾讯音乐 (\\S+)",true,true),
+    DOWN_MUSIC_NETEASE("- 下载网易音乐 音乐id","下载网易音乐 (\\S+)",true,true),
 
     ;
 
@@ -26,15 +30,15 @@ public enum Command {
 
     public boolean hasParam;
 
-    public boolean admin;
+    public boolean needAdmin;
 
     public String regex;
 
 
-    Command(String command, String regex, boolean admin, boolean hasParam) {
+    Command(String command, String regex, boolean needAdmin, boolean hasParam) {
         this.regex = regex;
         this.command = command;
-        this.admin = admin;
+        this.needAdmin = needAdmin;
         this.hasParam = hasParam;
     }
 

@@ -11,6 +11,7 @@ import top.meethigher.constant.Command;
 import top.meethigher.entity.GroupRoom;
 import top.meethigher.repo.AdminRepo;
 import top.meethigher.repo.GroupRoomRepo;
+import top.meethigher.utils.MusicUtils;
 import top.meethigher.utils.TimeUtils;
 
 import java.util.List;
@@ -39,34 +40,36 @@ public class Manager {
         this.stamp = System.currentTimeMillis();
         this.adminRepo = AdminRepo.getInstance();
         this.groupRoomRepo = GroupRoomRepo.getInstance();
-        this.logger=logger;
+        this.logger = logger;
         new Watcher(logger);
     }
 
     public void start() {
         GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, event -> {
-            if(event.getBot().getId()!= Config.bot) {
+            if (event.getBot().getId() != Config.bot) {
                 return;
             }
             Member sender = event.getSender();
             long senderId = sender.getId();
-            Set<String> adminList = adminRepo.list();
-            if (adminList.contains(Long.toString(senderId))) {
-                MessageChain message = event.getMessage();
-                SingleMessage singleMessage = message.get(1);
-                String msg = singleMessage.toString().trim();
-                Command command = Command.matchCommand(msg);
-                if (command == null) {
-                    return;
-                }
-                action(command, event, msg);
+            MessageChain message = event.getMessage();
+            SingleMessage singleMessage = message.get(1);
+            String msg = singleMessage.toString().trim();
+            Command command = Command.matchCommand(msg);
+            if (command == null) {
+                return;
             }
+            action(command, event, msg, Long.toString(senderId));
 
         });
     }
 
 
-    private void action(Command command, GroupMessageEvent event, String msg) {
+    private void action(Command command, GroupMessageEvent event, String msg, String senderId) {
+        boolean needAdmin = command.needAdmin;
+        if (needAdmin && !adminRepo.isAdmin(senderId)) {
+            event.getGroup().sendMessage("管理员方可操作，您没有权限！");
+            return;
+        }
         switch (command) {
             case ADMIN_LIST:
                 Set<String> list = adminRepo.list();
@@ -137,10 +140,59 @@ public class Manager {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
                 break;
+            case SEARCH_MUSIC_NETEASE:
+                // 进行匹配和提取
+                Matcher matcher4 = Pattern.compile(command.regex).matcher(msg);
+                if (matcher4.find()) {
+                    // 使用group(1)获取捕获组中的数字
+                    String musicName = matcher4.group(1);
+                    List<String> music = MusicUtils.getMusic(MusicUtils.NETEASE, musicName);
+                    event.getGroup().sendMessage("音乐列表：" + System.lineSeparator() + String.join(System.lineSeparator(), music));
+                } else {
+                    event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
+                }
+                break;
+            case SEARCH_MUSIC_TENCENT:
+                // 进行匹配和提取
+                Matcher matcher5 = Pattern.compile(command.regex).matcher(msg);
+                if (matcher5.find()) {
+                    // 使用group(1)获取捕获组中的数字
+                    String musicName = matcher5.group(1);
+                    List<String> music = MusicUtils.getMusic(MusicUtils.TENCENT, musicName);
+                    event.getGroup().sendMessage("音乐列表：" + System.lineSeparator() + String.join(System.lineSeparator(), music));
+                } else {
+                    event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
+                }
+                break;
+            case DOWN_MUSIC_TENCENT:
+                // 进行匹配和提取
+                Matcher matcher6 = Pattern.compile(command.regex).matcher(msg);
+                if (matcher6.find()) {
+                    // 使用group(1)获取捕获组中的数字
+                    String musicId = matcher6.group(1);
+                    String url = MusicUtils.downMusic(MusicUtils.TENCENT, musicId);
+                    event.getGroup().sendMessage(url);
+                } else {
+                    event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
+                }
+                break;
+            case DOWN_MUSIC_NETEASE:
+                // 进行匹配和提取
+                Matcher matcher7 = Pattern.compile(command.regex).matcher(msg);
+                if (matcher7.find()) {
+                    // 使用group(1)获取捕获组中的数字
+                    String musicId = matcher7.group(1);
+                    String url = MusicUtils.downMusic(MusicUtils.NETEASE, musicId);
+                    event.getGroup().sendMessage(url);
+                } else {
+                    event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
+                }
+                break;
             case HELP:
             default:
                 List<String> commandList = Command.getCommandList();
-                event.getGroup().sendMessage(String.join(System.lineSeparator(), commandList) +
+                event.getGroup().sendMessage("命令列表：" + System.lineSeparator() +
+                        String.join(System.lineSeparator(), commandList) +
                         System.lineSeparator() +
                         "运行时长：" + TimeUtils.convertToHumanReadable((System.currentTimeMillis() - stamp) / 1000));
 
