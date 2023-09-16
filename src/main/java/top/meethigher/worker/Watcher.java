@@ -16,11 +16,9 @@ import top.meethigher.model.LiveInfo;
 import top.meethigher.repo.GroupRoomRepo;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -77,7 +75,12 @@ public class Watcher {
         if (list.isEmpty()) {
             return;
         }
-        Set<String> groupSet = list.stream().map(GroupRoom::getGroup).collect(Collectors.toSet());
+        Set<String> groupSet=new HashSet<>();
+        for (GroupRoom groupRoom : list) {
+            if(groupRoom.getRoom().equals(roomId)) {
+                groupSet.add(groupRoom.getGroup());
+            }
+        }
         Bot bot = Bot.getInstance(Config.bot);
         for (String group : groupSet) {
             long id = Long.parseLong(group);
