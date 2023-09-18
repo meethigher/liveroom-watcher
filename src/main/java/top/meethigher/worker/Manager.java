@@ -44,6 +44,14 @@ public class Manager {
         new Watcher(logger);
     }
 
+    public Manager(MiraiLogger logger, Long stamp) {
+        this.stamp = stamp;
+        this.adminRepo = AdminRepo.getInstance();
+        this.groupRoomRepo = GroupRoomRepo.getInstance();
+        this.logger = logger;
+        new Watcher(logger);
+    }
+
     public void start() {
         GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, event -> {
             if (event.getBot().getId() != Config.bot) {
@@ -66,9 +74,18 @@ public class Manager {
 
     private void action(Command command, GroupMessageEvent event, String msg, String senderId) {
         boolean needAdmin = command.needAdmin;
-        if (needAdmin && !adminRepo.isAdmin(senderId)) {
-            event.getGroup().sendMessage("管理员方可操作，您没有权限！");
-            return;
+        boolean isInitAdmin=false;
+        for (String s : Config.initAdmin) {
+            if(senderId.equals(s)) {
+                isInitAdmin=true;
+                break;
+            }
+        }
+        if(!isInitAdmin) {
+            if (needAdmin && !adminRepo.isAdmin(senderId)) {
+                event.getGroup().sendMessage("管理员方可操作，您没有权限！");
+                return;
+            }
         }
         switch (command) {
             case ADMIN_LIST:
@@ -88,7 +105,7 @@ public class Manager {
                     // 使用group(1)获取捕获组中的数字
                     String matchedNumber = matcher.group(1);
                     adminRepo.add(matchedNumber);
-                    event.getGroup().sendMessage("成功添加管理员！");
+                    event.getGroup().sendMessage("成功添加管理员" + matchedNumber + "！");
                 } else {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
@@ -100,7 +117,7 @@ public class Manager {
                     // 使用group(1)获取捕获组中的数字
                     String matchedNumber = matcher1.group(1);
                     adminRepo.remove(matchedNumber);
-                    event.getGroup().sendMessage("成功删除管理员！");
+                    event.getGroup().sendMessage("成功删除管理员" + matchedNumber + "！");
                 } else {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
@@ -122,7 +139,7 @@ public class Manager {
                     String room = matcher2.group(1);
                     long id = event.getGroup().getId();
                     groupRoomRepo.add(new GroupRoom(room, Long.toString(id)));
-                    event.getGroup().sendMessage("成功添加直播间！");
+                    event.getGroup().sendMessage("成功添加直播间" + room + "！");
                 } else {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
@@ -135,7 +152,7 @@ public class Manager {
                     String room = matcher3.group(1);
                     long id = event.getGroup().getId();
                     groupRoomRepo.remove(new GroupRoom(room, Long.toString(id)));
-                    event.getGroup().sendMessage("成功删除直播间！");
+                    event.getGroup().sendMessage("成功删除直播间" + room + "！");
                 } else {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
