@@ -15,13 +15,15 @@ version = "1.0"
 * https://stackoverflow.com/questions/69599536/gradle-sync-error-ssl-peer-shut-down-incorrectly
 */
 repositories {
-    maven("https://maven.aliyun.com/repository/public")
+    maven("https://s01.oss.sonatype.org/content/groups/public/")
     mavenCentral()
 }
 
 dependencies {
     implementation("com.alibaba.fastjson2:fastjson2:2.0.40")
     implementation("org.jodd:jodd-http:6.3.0")
+    implementation("top.meethigher:light-repo:1.0")
+    implementation("top.meethigher:light-statemachine:1.0")
     implementation(kotlin("stdlib-jdk8"))
 }
 val compileKotlin: KotlinCompile by tasks

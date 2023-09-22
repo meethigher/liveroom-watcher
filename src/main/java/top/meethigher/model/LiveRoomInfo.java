@@ -2,7 +2,13 @@ package top.meethigher.model;
 
 import top.meethigher.constant.LiveState;
 
-public class LiveInfo {
+/**
+ * 直播间状态
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:44
+ */
+public class LiveRoomInfo {
 
     private LiveState liveState;
 
@@ -10,7 +16,7 @@ public class LiveInfo {
 
     private String image;
 
-    public LiveInfo(LiveState liveState, String title, String image) {
+    public LiveRoomInfo(LiveState liveState, String title, String image) {
         this.liveState = liveState;
         this.title = title;
         this.image = image;

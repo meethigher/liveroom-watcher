@@ -10,6 +10,12 @@ import top.meethigher.config.Config;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 音乐工具类
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:44
+ */
 public class MusicUtils {
 
     public static String TENCENT = "tencent";

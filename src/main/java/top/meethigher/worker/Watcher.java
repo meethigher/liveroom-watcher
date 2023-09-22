@@ -12,14 +12,12 @@ import net.mamoe.mirai.utils.MiraiLogger;
 import top.meethigher.config.Config;
 import top.meethigher.constant.LiveState;
 import top.meethigher.entity.GroupRoom;
-import top.meethigher.model.LiveInfo;
+import top.meethigher.model.LiveRoomInfo;
 import top.meethigher.repo.GroupRoomRepo;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * 监听者
@@ -31,7 +29,7 @@ public class Watcher {
 
     private final GroupRoomRepo groupRoomRepo;
 
-    private final Map<String, LiveInfo> roomMap;
+    private final Map<String, LiveRoomInfo> roomMap;
 
     private final MiraiLogger logger;
 
@@ -46,14 +44,14 @@ public class Watcher {
                 Set<String> roomSet = groupRoomRepo.getRoomSet();
                 for (String room : roomSet) {
                     try {
-                        LiveInfo liveInfo = getLiveInfo(room);
-                        LiveInfo lastLiveInfo = roomMap.get(room);
-                        if (lastLiveInfo == null) {
-                            roomMap.put(room, liveInfo);
+                        LiveRoomInfo liveRoomInfo = getLiveInfo(room);
+                        LiveRoomInfo lastLiveRoomInfo = roomMap.get(room);
+                        if (lastLiveRoomInfo == null) {
+                            roomMap.put(room, liveRoomInfo);
                             return;
                         }
-                        if (!lastLiveInfo.getLiveState().equals(liveInfo.getLiveState())) {
-                            notifyGroupInRoom(room, liveInfo);
+                        if (!lastLiveRoomInfo.getLiveState().equals(liveRoomInfo.getLiveState())) {
+                            notifyGroupInRoom(room, liveRoomInfo);
                         }
                     } catch (Exception e) {
                         logger.error(e.getMessage());
@@ -67,10 +65,10 @@ public class Watcher {
      * 通知
      *
      * @param roomId
-     * @param liveInfo
+     * @param liveRoomInfo
      */
-    public void notifyGroupInRoom(String roomId, LiveInfo liveInfo) {
-        roomMap.put(roomId, liveInfo);
+    public void notifyGroupInRoom(String roomId, LiveRoomInfo liveRoomInfo) {
+        roomMap.put(roomId, liveRoomInfo);
         Set<GroupRoom> list = groupRoomRepo.list();
         if (list.isEmpty()) {
             return;
@@ -89,10 +87,10 @@ public class Watcher {
                 logger.warning("未找到群组" + id);
                 continue;
             }
-            botGroup.sendMessage(String.format("您关注的直播标题为【%s】的直播间【https://live.bilibili.com/%s】当前状态【%s】", liveInfo.getTitle(), roomId, liveInfo.getLiveState().desc));
+            botGroup.sendMessage(String.format("您关注的直播标题为【%s】的直播间【https://live.bilibili.com/%s】当前状态【%s】", liveRoomInfo.getTitle(), roomId, liveRoomInfo.getLiveState().desc));
             //如果是直播中，则发送直播帧图
-            if (liveInfo.getLiveState().equals(LiveState.STARTING)) {
-                HttpResponse send = HttpRequest.get(liveInfo.getImage()).send();
+            if (liveRoomInfo.getLiveState().equals(LiveState.STARTING)) {
+                HttpResponse send = HttpRequest.get(liveRoomInfo.getImage()).send();
                 byte[] bytes = send.bodyBytes();
                 Image image = botGroup.uploadImage(ExternalResource.create(bytes));
                 botGroup.sendMessage(image);
@@ -106,7 +104,7 @@ public class Watcher {
      * @param roomId
      * @return
      */
-    private LiveInfo getLiveInfo(String roomId) {
+    private LiveRoomInfo getLiveInfo(String roomId) {
         String api = String.format(Config.template, roomId);
         HttpResponse response = HttpRequest.get(api).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
         String s = response.bodyText();
@@ -115,7 +113,7 @@ public class Watcher {
         Integer status = data.getInteger("live_status");
         String title = data.getString("title");
         String image = data.getString("keyframe");
-        return new LiveInfo(LiveState.findByCode(status), title, image);
+        return new LiveRoomInfo(LiveState.findByCode(status), title, image);
     }
 
 }

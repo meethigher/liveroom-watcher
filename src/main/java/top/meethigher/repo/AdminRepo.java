@@ -1,8 +1,14 @@
 package top.meethigher.repo;
 
 import top.meethigher.config.Config;
-import top.meethigher.utils.FileRepo;
+import top.meethigher.light.repo.FileRepo;
 
+/**
+ * 管理员仓库
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:43
+ */
 public class AdminRepo extends FileRepo<String> {
 
     private AdminRepo() {

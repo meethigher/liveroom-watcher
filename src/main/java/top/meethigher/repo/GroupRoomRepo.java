@@ -1,12 +1,18 @@
 package top.meethigher.repo;
 
 import top.meethigher.entity.GroupRoom;
-import top.meethigher.utils.FileRepo;
+import top.meethigher.light.repo.FileRepo;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+/**
+ * 群与直播间的关联关系
+ * 群:直播间=N:1
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:42
+ */
 public class GroupRoomRepo extends FileRepo<GroupRoom> {
     private GroupRoomRepo() {
         super("groupRoomRepo");
@@ -33,7 +39,7 @@ public class GroupRoomRepo extends FileRepo<GroupRoom> {
 
     public Set<String> getRoomSet() {
         Set<GroupRoom> list = this.list();
-        Set<String> set=new HashSet<>();
+        Set<String> set = new HashSet<>();
         for (GroupRoom groupRoom : list) {
             set.add(groupRoom.getRoom());
         }
@@ -41,10 +47,10 @@ public class GroupRoomRepo extends FileRepo<GroupRoom> {
     }
 
     public Set<String> getRoomSet(String group) {
-        Set<GroupRoom> list=this.list();
-        Set<String> set=new HashSet<>();
+        Set<GroupRoom> list = this.list();
+        Set<String> set = new HashSet<>();
         for (GroupRoom groupRoom : list) {
-            if(groupRoom.getGroup().equals(group)) {
+            if (groupRoom.getGroup().equals(group)) {
                 set.add(groupRoom.getRoom());
             }
         }

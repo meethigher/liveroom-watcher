@@ -1,5 +1,11 @@
 package top.meethigher.constant;
 
+/**
+ * 直播状态
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:45
+ */
 public enum LiveState {
 
     CLOSED(0,"已下播"),

@@ -3,6 +3,12 @@ package top.meethigher.entity;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * 群:直播间=N:1
+ *
+ * @author chenchuancheng
+ * @since 2023/09/22 20:45
+ */
 public class GroupRoom implements Serializable {
 
     private String room;
