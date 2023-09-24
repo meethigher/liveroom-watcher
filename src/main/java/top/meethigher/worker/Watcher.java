@@ -37,6 +37,7 @@ public class Watcher {
 
     private final MiraiLogger logger;
 
+    private static final String ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
     public Watcher(MiraiLogger logger) {
         this.logger = logger;
@@ -87,7 +88,7 @@ public class Watcher {
                 continue;
             }
             botGroup.sendMessage(String.format("您关注的主播【%s】直播标题为【%s】的直播间【https://live.bilibili.com/%s】当前状态【%s】",
-                    liveRoomInfo.getAuthor(),
+                    liveRoomInfo.getUname(),
                     liveRoomInfo.getTitle(),
                     roomId,
                     liveRoomInfo.getLiveState().desc));
@@ -107,7 +108,7 @@ public class Watcher {
         String api = String.format(Config.template, roomId);
         //获取直播间信息，出错重试
         LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage())).executeWithRetry(() -> {
-            HttpResponse response = HttpRequest.get(api).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+            HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT,ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
             String s = response.bodyText();
             JSONObject jsonObject = JSON.parseObject(s);
             JSONObject data = jsonObject.getJSONObject("data");
@@ -122,11 +123,12 @@ public class Watcher {
         //获取用户名，出错重试
         String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage()))
                 .executeWithRetry(() -> {
-                    HttpResponse response = HttpRequest.get(userApi).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+                    HttpResponse response = HttpRequest.get(userApi).headersClear().header(HttpRequest.HEADER_USER_AGENT,ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
                     return JSON.parseObject(response.bodyText()).getJSONObject("data").getString("name");
                 });
         liveRoomInfo.setUname(uname);
         return liveRoomInfo;
     }
+
 
 }

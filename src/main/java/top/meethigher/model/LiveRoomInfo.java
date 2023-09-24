@@ -14,7 +14,6 @@ public class LiveRoomInfo {
 
     private String title;
 
-    private String author;
 
     private String image;
 
@@ -22,11 +21,12 @@ public class LiveRoomInfo {
 
 
     private String uname;
-    public LiveRoomInfo(LiveState liveState, String title, String image,String uid) {
+
+    public LiveRoomInfo(LiveState liveState, String title, String image, String uid) {
         this.liveState = liveState;
         this.title = title;
         this.image = image;
-        this.uid=uid;
+        this.uid = uid;
     }
 
     public LiveState getLiveState() {
@@ -43,14 +43,6 @@ public class LiveRoomInfo {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getImage() {
