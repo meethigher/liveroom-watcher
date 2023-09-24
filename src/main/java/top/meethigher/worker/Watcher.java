@@ -106,7 +106,7 @@ public class Watcher {
     private LiveRoomInfo getLiveInfo(String roomId) throws Exception {
         String api = String.format(Config.template, roomId);
         //获取直播间信息，出错重试
-        LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error(e.getMessage())).executeWithRetry(() -> {
+        LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage())).executeWithRetry(() -> {
             HttpResponse response = HttpRequest.get(api).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
             String s = response.bodyText();
             JSONObject jsonObject = JSON.parseObject(s);
@@ -120,7 +120,7 @@ public class Watcher {
         String uid = liveRoomInfo.getUid();
         String userApi = String.format(Config.userInfo, uid);
         //获取用户名，出错重试
-        String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error(e.getMessage()))
+        String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage()))
                 .executeWithRetry(() -> {
                     HttpResponse response = HttpRequest.get(userApi).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
                     return JSON.parseObject(response.bodyText()).getJSONObject("data").getString("name");
