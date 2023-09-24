@@ -1,6 +1,5 @@
 package top.meethigher.repo;
 
-import top.meethigher.config.Config;
 import top.meethigher.light.repo.FileRepo;
 
 /**
@@ -24,11 +23,8 @@ public class AdminRepo extends FileRepo<String> {
         if (repo == null) {
             //加锁第二次检查
             synchronized (AdminRepo.class) {
-                if(repo ==null) {
+                if (repo == null) {
                     repo = new AdminRepo();
-                    for (String s : Config.initAdmin) {
-                        repo.add(s);
-                    }
                 }
             }
         }
