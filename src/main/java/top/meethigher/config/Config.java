@@ -1,6 +1,6 @@
 package top.meethigher.config;
 
-import jodd.util.PropertiesUtil;
+import net.mamoe.mirai.utils.MiraiLogger;
 import top.meethigher.utils.PropertiesUtils;
 
 import java.io.IOException;
@@ -15,7 +15,10 @@ import java.util.Properties;
 public class Config {
 //    String template = "https://api.live.bilibili.com/room/v1/Room/room_init?id=%s";
 
+
     public static final String template = "https://api.live.bilibili.com/room/v1/Room/get_info?room_id=%s";
+
+    public static final String userInfo = "https://api.bilibili.com/x/space/wbi/acc/info?mid=%s";
 
     public static final String getMusicTemplate = "https://meethigher.top/music/api.php?types=search&count=5&pages=1&source=%s&name=%s";
 
@@ -25,6 +28,7 @@ public class Config {
 
     public static String[] initAdmin;
 
+    public static MiraiLogger logger;
 
     private static final String resource = "liveroom-watcher.properties";
 
@@ -33,21 +37,21 @@ public class Config {
         try {
             properties = PropertiesUtils.load(resource);
         } catch (IOException e) {
-            System.out.println("加载配置文件出错");
+            logger.error("加载配置文件出错");
             System.exit(0);
         }
         String botString = properties.getProperty("bot");
         try {
             bot = Long.valueOf(botString);
         } catch (Exception e) {
-            System.out.println("解析机器人编号出错");
+            logger.error("解析机器人编号出错");
             System.exit(0);
         }
         try {
             String builtInAdministrator = properties.getProperty("built-in-administrator");
             initAdmin = builtInAdministrator.split(",");
         } catch (Exception e) {
-            System.out.println("解析内置管理员出错");
+            logger.error("解析内置管理员出错");
             System.exit(0);
         }
     }

@@ -3,6 +3,7 @@ package top.meethigher;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.utils.MiraiLogger;
+import top.meethigher.config.Config;
 import top.meethigher.worker.Manager;
 
 public final class LiveroomWatcherPlugin extends JavaPlugin {
@@ -19,6 +20,7 @@ public final class LiveroomWatcherPlugin extends JavaPlugin {
     public void onEnable() {
         MiraiLogger logger = getLogger();
         logger.info("Plugin loaded!");
+        Config.logger=logger;
         new Manager(logger,1694871115000L).start();
     }
 }
