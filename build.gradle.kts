@@ -22,6 +22,7 @@ repositories {
 dependencies {
     implementation("top.meethigher:light-repo:1.0")
     implementation("top.meethigher:light-retry:1.0")
+    implementation("top.meethigher:cache-store:1.2")
     implementation("top.meethigher:light-statemachine:1.1")
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.alibaba.fastjson2:fastjson2:2.0.40")
