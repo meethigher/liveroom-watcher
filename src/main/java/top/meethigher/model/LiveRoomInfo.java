@@ -23,6 +23,15 @@ public class LiveRoomInfo {
     private String uname;
 
     public LiveRoomInfo(LiveState liveState, String title, String image, String uid) {
+        if (title == null) {
+            throw new IllegalArgumentException("title 不能为空");
+        }
+        if (image == null) {
+            throw new IllegalArgumentException("image 不能为空");
+        }
+        if (uid == null) {
+            throw new IllegalArgumentException("uid 不能为空");
+        }
         this.liveState = liveState;
         this.title = title;
         this.image = image;

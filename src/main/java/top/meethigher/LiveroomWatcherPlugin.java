@@ -21,6 +21,6 @@ public final class LiveroomWatcherPlugin extends JavaPlugin {
         MiraiLogger logger = getLogger();
         logger.info("Plugin loaded!");
         Config.logger=logger;
-        new Manager(logger,1694871115000L).start();
+        new Manager(logger,System.currentTimeMillis()).start();
     }
 }

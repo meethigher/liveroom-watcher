@@ -15,6 +15,7 @@ import top.meethigher.entity.GroupRoom;
 import top.meethigher.light.retry.RetryHolder;
 import top.meethigher.model.LiveRoomInfo;
 import top.meethigher.repo.GroupRoomRepo;
+import top.meethigher.utils.ExecutorUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -37,7 +38,7 @@ public class Watcher {
 
     private final MiraiLogger logger;
 
-    private static final String ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
+    private static final String ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36";
 
     public Watcher(MiraiLogger logger) {
         this.logger = logger;
@@ -46,22 +47,25 @@ public class Watcher {
         new Timer("watcher-" + Integer.toHexString(hashCode())).scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Set<String> roomSet = groupRoomRepo.getRoomSet();
-                for (String room : roomSet) {
+                ExecutorUtils.executor().execute(() -> {
                     try {
-                        LiveRoomInfo liveRoomInfo = getLiveInfo(room);
-                        LiveRoomInfo lastLiveRoomInfo = roomMap.get(room);
-                        if (lastLiveRoomInfo == null) {
-                            roomMap.put(room, liveRoomInfo);
-                            return;
-                        }
-                        if (!lastLiveRoomInfo.getLiveState().equals(liveRoomInfo.getLiveState())) {
-                            notifyGroupInRoom(room, liveRoomInfo);
+                        logger.info("watcher performed");
+                        Set<String> roomSet = groupRoomRepo.getRoomSet();
+                        for (String room : roomSet) {
+                            LiveRoomInfo liveRoomInfo = getLiveInfo(room);
+                            LiveRoomInfo lastLiveRoomInfo = roomMap.get(room);
+                            if (lastLiveRoomInfo == null) {
+                                roomMap.put(room, liveRoomInfo);
+                                return;
+                            }
+                            if (!lastLiveRoomInfo.getLiveState().equals(liveRoomInfo.getLiveState())) {
+                                notifyGroupInRoom(room, liveRoomInfo);
+                            }
                         }
                     } catch (Exception e) {
                         logger.error(e.getMessage());
                     }
-                }
+                });
             }
         }, 10 * 1000, 60 * 1000);
     }
@@ -107,9 +111,12 @@ public class Watcher {
     private LiveRoomInfo getLiveInfo(String roomId) throws Exception {
         String api = String.format(Config.template, roomId);
         //获取直播间信息，出错重试
-        LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage())).executeWithRetry(() -> {
-            HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT,ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+        LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("get room info error, roomId=" + roomId + ": " + e.getMessage())).executeWithRetry(() -> {
+            HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
             String s = response.bodyText();
+            if(Manager.aBoolean.get()) {
+                logger.info(s);
+            }
             JSONObject jsonObject = JSON.parseObject(s);
             JSONObject data = jsonObject.getJSONObject("data");
             Integer status = data.getInteger("live_status");
@@ -121,10 +128,14 @@ public class Watcher {
         String uid = liveRoomInfo.getUid();
         String userApi = String.format(Config.userInfo, uid);
         //获取用户名，出错重试
-        String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("roomId="+roomId+": "+e.getMessage()))
+        String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("get user name error, roomId=" + roomId + ": " + e.getMessage()))
                 .executeWithRetry(() -> {
-                    HttpResponse response = HttpRequest.get(userApi).headersClear().header(HttpRequest.HEADER_USER_AGENT,ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
-                    return JSON.parseObject(response.bodyText()).getJSONObject("data").getString("name");
+                    HttpResponse response = HttpRequest.get(userApi).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+                    String s = response.bodyText();
+                    if(Manager.aBoolean.get()) {
+                        logger.info(s);
+                    }
+                    return JSON.parseObject(s).getJSONObject("data").getString("name");
                 });
         liveRoomInfo.setUname(uname);
         return liveRoomInfo;

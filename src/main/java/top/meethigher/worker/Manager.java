@@ -16,6 +16,7 @@ import top.meethigher.utils.TimeUtils;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,8 @@ import java.util.regex.Pattern;
  * @since 2023/9/11 22:07
  */
 public class Manager {
+
+    public static AtomicBoolean aBoolean=new AtomicBoolean(false);
 
     private final Long stamp;
 
@@ -204,6 +207,10 @@ public class Manager {
                 } else {
                     event.getGroup().sendMessage("格式不正确，请输入正确的格式: " + command.regex);
                 }
+                break;
+            case LOG:
+                aBoolean.set(!aBoolean.get());
+                event.getGroup().sendMessage("debug模式已切换至 "+aBoolean.get());
                 break;
             case HELP:
             default:

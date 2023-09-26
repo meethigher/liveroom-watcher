@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  */
 public enum Command {
 
+    LOG("- debug","debug",true,false),
     HELP("- 帮助", "帮助", false, false),
     ADMIN_LIST("- 管理员列表", "管理员列表", true, false),
     ADD_ADMIN("- 添加管理员 QQ", "添加管理员 (\\d{1,15})", true, true),
