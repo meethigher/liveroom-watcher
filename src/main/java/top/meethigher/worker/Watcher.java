@@ -59,6 +59,7 @@ public class Watcher {
                                 return;
                             }
                             if (!lastLiveRoomInfo.getLiveState().equals(liveRoomInfo.getLiveState())) {
+                                liveRoomInfo.setUname(getUName(liveRoomInfo.getUid()));
                                 notifyGroupInRoom(room, liveRoomInfo);
                             }
                         }
@@ -111,7 +112,7 @@ public class Watcher {
     private LiveRoomInfo getLiveInfo(String roomId) throws Exception {
         String api = String.format(Config.template, roomId);
         //获取直播间信息，出错重试
-        LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("get room info error, roomId=" + roomId + ": " + e.getMessage())).executeWithRetry(() -> {
+        return RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("get room info error, roomId=" + roomId + ": " + e.getMessage())).executeWithRetry(() -> {
             HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua)
                     .header("Cookie", Config.cookie).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
             String s = response.bodyText();
@@ -126,10 +127,12 @@ public class Watcher {
             String uid = data.getString("uid");
             return new LiveRoomInfo(LiveState.findByCode(status), title, image, uid);
         });
-        String uid = liveRoomInfo.getUid();
+    }
+
+    private String getUName(String uid) throws Exception {
         String userApi = String.format(Config.userInfo, uid);
         //获取用户名，出错重试
-        String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("get user name error, roomId=" + roomId + ": " + e.getMessage()))
+        return RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("get user name error, uid=" + uid + ": " + e.getMessage()))
                 .executeWithRetry(() -> {
                     HttpResponse response = HttpRequest.get(userApi).headersClear()
                             .header("Cookie", Config.cookie).header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
@@ -139,8 +142,6 @@ public class Watcher {
                     }
                     return JSON.parseObject(s).getJSONObject("data").getString("name");
                 });
-        liveRoomInfo.setUname(uname);
-        return liveRoomInfo;
     }
 
 
