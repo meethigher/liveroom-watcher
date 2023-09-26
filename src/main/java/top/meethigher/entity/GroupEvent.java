@@ -12,6 +12,14 @@ import java.util.Set;
  */
 public class GroupEvent implements Serializable {
 
+
+    /**
+     * 添加事件名称 xx
+     * 添加提醒人列表 xx,xx
+     * 添加提醒事件 HH:mm:ss
+     * 添加提醒内容 xx
+     */
+
     /**
      * 事件名称
      */

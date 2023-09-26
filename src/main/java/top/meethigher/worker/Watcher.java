@@ -112,9 +112,10 @@ public class Watcher {
         String api = String.format(Config.template, roomId);
         //获取直播间信息，出错重试
         LiveRoomInfo liveRoomInfo = RetryHolder.getRetryHolder(5, 500, (Predicate<LiveRoomInfo>) Objects::nonNull, e -> logger.error("get room info error, roomId=" + roomId + ": " + e.getMessage())).executeWithRetry(() -> {
-            HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+            HttpResponse response = HttpRequest.get(api).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua)
+                    .header("Cookie", Config.cookie).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
             String s = response.bodyText();
-            if(Manager.aBoolean.get()) {
+            if (Manager.aBoolean.get()) {
                 logger.info(s);
             }
             JSONObject jsonObject = JSON.parseObject(s);
@@ -130,9 +131,10 @@ public class Watcher {
         //获取用户名，出错重试
         String uname = RetryHolder.getRetryHolder(5, 500, (Predicate<String>) Objects::nonNull, e -> logger.error("get user name error, roomId=" + roomId + ": " + e.getMessage()))
                 .executeWithRetry(() -> {
-                    HttpResponse response = HttpRequest.get(userApi).headersClear().header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
+                    HttpResponse response = HttpRequest.get(userApi).headersClear()
+                            .header("Cookie", Config.cookie).header(HttpRequest.HEADER_USER_AGENT, ua).charset(StandardCharsets.UTF_8.name()).send().charset(StandardCharsets.UTF_8.name());
                     String s = response.bodyText();
-                    if(Manager.aBoolean.get()) {
+                    if (Manager.aBoolean.get()) {
                         logger.info(s);
                     }
                     return JSON.parseObject(s).getJSONObject("data").getString("name");

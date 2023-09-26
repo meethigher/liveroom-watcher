@@ -28,6 +28,8 @@ public class Config {
 
     public static String[] initAdmin;
 
+    public static String cookie;
+
     public static MiraiLogger logger;
 
     private static final String resource = "liveroom-watcher.properties";
@@ -52,6 +54,12 @@ public class Config {
             initAdmin = builtInAdministrator.split(",");
         } catch (Exception e) {
             logger.error("解析内置管理员出错");
+            System.exit(0);
+        }
+        try {
+            cookie=properties.getProperty("cookie");
+        }catch (Exception e) {
+            logger.error("解析cookie出错");
             System.exit(0);
         }
     }
